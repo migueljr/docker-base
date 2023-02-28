@@ -3,6 +3,7 @@ FROM nginx:latest
 # Copiar o arquivo de configuração personalizado do Nginx
 COPY sites-available /etc/nginx/sites-available
 COPY nginx.conf /etc/nginx/nginx.conf
+COPY default.conf /etc/nginx/conf.d/default.conf
 
 # Copiar arquivos estáticos para o diretório padrão do Nginx
 #COPY html /usr/share/nginx/html
