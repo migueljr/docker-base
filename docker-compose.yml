@@ -9,7 +9,7 @@ services:
     volumes:
       - ./apps:/var/www
     depends_on:
-      - php-fpm
+      - php-fpm 
   php-fpm:
     image: php:8.1.16-fpm
     volumes:
