@@ -1,0 +1,33 @@
+version: "3.9"
+services:
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    volumes:
+      - ./apps:/var/www
+    depends_on:
+      - php-fpm
+  php-fpm:
+    image: php:8.1.16-fpm
+    volumes:
+      - ./apps/site1:/var/www/site1
+  composer:
+    container_name: composer
+    image: composer:latest
+    volumes:
+      - ./apps:/app
+    command: tail -f /dev/null
+    restart: always
+  node:
+    container_name: node
+    image: node:latest
+    volumes:
+      - ./apps/site2:/app
+    working_dir: /app
+    command: npm run dev -- --host
+    restart: always
+    ports:
+      - 8080:5173
