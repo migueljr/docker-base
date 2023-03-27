@@ -1,6 +1,7 @@
 version: "3.9"
 services:
   nginx:
+    restart: always
     container_name: nginx
     build:
       context: ./nginx
@@ -12,9 +13,14 @@ services:
     depends_on:
       - php-fpm 
   php-fpm:
-    image: php:8.1.16-fpm
+    restart: always
+    build:
+      context: ./php
+      dockerfile: Dockerfile
     volumes:
       - ./apps/site1:/var/www/site1
+    ports:
+      - "9000:9000"
   composer:
     container_name: composer
     image: composer:latest
@@ -22,13 +28,38 @@ services:
       - ./apps:/app
     command: tail -f /dev/null
     restart: always
-  node:
-    container_name: node
-    image: node:latest
-    volumes:
-      - ./apps/site2:/app
-    working_dir: /app
-    command: npm run dev -- --host
+  # node:
+  #   container_name: node
+  #   image: node:latest
+  #   volumes:
+  #     - ./apps/site2:/app
+  #   working_dir: /app
+  #   command: npm run dev -- --host
+  #   restart: always
+  #   ports:
+  #     - 8080:5173
+  db:
+    image: mysql:latest
+    container_name: my-mysql-container
     restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: testes
+      MYSQL_USER: miguel
+      MYSQL_PASSWORD: miguel
+    volumes:
+      - ./db_data:/var/lib/mysql
     ports:
-      - 8080:5173
+      - "3306:3306"
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: my-phpmyadmin-container
+    restart: always
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: secret
+    ports:
+      - "9098:80"
+    depends_on:
+      - db
