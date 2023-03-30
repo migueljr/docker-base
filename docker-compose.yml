@@ -13,12 +13,14 @@ services:
     depends_on:
       - php-fpm 
   php-fpm:
+    container_name: php-fpm
     restart: always
     build:
       context: ./php
       dockerfile: Dockerfile
     volumes:
       - ./apps/site1:/var/www/site1
+      - ./apps/site2:/var/www/site2
     ports:
       - "9000:9000"
   composer:
@@ -28,16 +30,16 @@ services:
       - ./apps:/app
     command: tail -f /dev/null
     restart: always
-  # node:
-  #   container_name: node
-  #   image: node:latest
-  #   volumes:
-  #     - ./apps/site2:/app
-  #   working_dir: /app
-  #   command: npm run dev -- --host
-  #   restart: always
-  #   ports:
-  #     - 8080:5173
+  node:
+    container_name: node
+    image: node:latest
+    volumes:
+      - ./apps/site1:/app
+    working_dir: /app
+    command: npm run watch
+    restart: always
+    ports:
+      - 8080:5173
   db:
     image: mysql:latest
     container_name: my-mysql-container
@@ -49,11 +51,14 @@ services:
       MYSQL_PASSWORD: miguel
     volumes:
       - ./db_data:/var/lib/mysql
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
     ports:
       - "3306:3306"
   
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
+    build:
+      context: ./phpmyadmin
+      dockerfile: Dockerfile
     container_name: my-phpmyadmin-container
     restart: always
     environment:
